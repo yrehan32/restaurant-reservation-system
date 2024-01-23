@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\Table;
 use App\Http\Controllers\API\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,4 +29,14 @@ Route::group(['prefix' => 'user'], function () {
     });
 
     Route::post('/', [User::class, 'create']);
+});
+
+Route::group(['prefix' => 'table'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::get('/', [Table::class, 'get']);
+        Route::get('/{id}', [Table::class, 'getById']);
+        Route::post('/', [Table::class, 'create']);
+        Route::put('/{id}', [Table::class, 'update']);
+        Route::delete('/{id}', [Table::class, 'delete']);
+    });
 });
