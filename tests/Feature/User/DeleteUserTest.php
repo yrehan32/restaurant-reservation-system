@@ -25,6 +25,7 @@ class DeleteUserTest extends TestCase
             'email' => 'unittest_' . $this->faker->email,
             'password' => 'Password!@#123',
             'password_confirmation' => 'Password!@#123',
+            'role' => 'admin',
         ];
 
         $user = $this->postJson('/api/user', $data);

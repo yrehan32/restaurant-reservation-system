@@ -29,6 +29,7 @@ class GetUserTest extends TestCase
             'email' => $email,
             'password' => $password,
             'password_confirmation' => $password,
+            'role' => 'admin',
         ]);
 
         $token = $user->json('data.token');

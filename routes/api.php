@@ -38,7 +38,7 @@ Route::group(['prefix' => 'user'], function () {
         Route::delete('/{id}', [User::class, 'delete'])->middleware('scope:delete-user');
     });
 
-    Route::post('/', [User::class, 'create'])->middleware('scope:create-user');
+    Route::post('/', [User::class, 'create']);
 });
 
 Route::group(['prefix' => 'table'], function () {

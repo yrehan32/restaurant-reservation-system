@@ -35,6 +35,7 @@ class CreateRequest extends FormRequest
                 'min:8',
                 'confirmed',
             ],
+            'role' => 'sometimes|string|in:admin,user',
         ];
     }
 }
