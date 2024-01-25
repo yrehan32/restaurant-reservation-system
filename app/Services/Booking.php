@@ -51,6 +51,8 @@ class Booking
 
     public function create(array $data) : array
     {
+        $statusCode = 200;
+
         DB::beginTransaction();
 
         try {
@@ -60,11 +62,13 @@ class Booking
                 ->first();
 
             if (!$table->is_available) {
+                $statusCode = 409;
                 throw new \Exception('Table already booked.');
             }
 
             // If number_of_people > table capacity, throw exception
             if ($data['number_of_people'] > $table->capacity) {
+                $statusCode = 422;
                 throw new \Exception('Number of people exceeds table capacity.');
             }
 
@@ -88,6 +92,7 @@ class Booking
             return [
                 'success' => false,
                 'message' => $th->getMessage(),
+                'status_code' => $statusCode,
             ];
         }
     }

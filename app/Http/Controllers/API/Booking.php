@@ -47,6 +47,7 @@ class Booking extends Controller
         $isError = false;
         $message = "";
         $data = [];
+        $statusCode = 200;
         
         try {
             $service = new ServicesBooking('online');
@@ -56,6 +57,7 @@ class Booking extends Controller
             $booking = $service->create($request->validated());
 
             if (!$booking['success']) {
+                $statusCode = $booking['status_code'];
                 throw new \Exception($booking['message']);
             }
 
@@ -72,7 +74,7 @@ class Booking extends Controller
             'error' => $isError,
             'message' => $message,
             'data' => $data,
-        ]);
+        ], $statusCode);
     }
 
     public function update(UpdateRequest $request, $id) : JsonResponse
