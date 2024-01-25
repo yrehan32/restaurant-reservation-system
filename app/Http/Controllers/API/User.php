@@ -4,9 +4,12 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\CreateRequest;
+use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\UpdateRequest;
 use App\Models\User as ModelsUser;
+use App\Utils\Constant;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class User extends Controller
@@ -25,11 +28,57 @@ class User extends Controller
     {
         $user = ModelsUser::create($request->validated());
 
-        $token = $user->createToken('authToken')->accessToken;
+        $role = $user->role;
+
+        if ($role == Constant::ADMIN_ROLE) {
+            $scopes = Constant::ADMIN_SCOPE;
+        } elseif ($role == Constant::USER_ROLE) {
+            $scopes = Constant::USER_SCOPE;
+        } else {
+            $scopes = [];
+        }
+
+        $token = $user->createToken('authToken', $scopes)->accessToken;
 
         return response()->json([
             'error' => false,
             'message' => 'User created successfully.',
+            'data' => [
+                'user' => $user,
+                'token' => $token,
+            ],
+        ]);
+    }
+
+    public function login(LoginRequest $request) : JsonResponse
+    {
+        $credentials = $request->validated();
+
+        if (!Auth::attempt($credentials)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Invalid credentials.',
+                'data' => null,
+            ]);
+        }
+
+        $user = Auth::user();
+
+        $role = $user->role;
+
+        if ($role == Constant::ADMIN_ROLE) {
+            $scopes = Constant::ADMIN_SCOPE;
+        } elseif ($role == Constant::USER_ROLE) {
+            $scopes = Constant::USER_SCOPE;
+        } else {
+            $scopes = [];
+        }
+
+        $token = $user->createToken('authToken', $scopes)->accessToken;
+
+        return response()->json([
+            'error' => false,
+            'message' => 'User logged in successfully.',
             'data' => [
                 'user' => $user,
                 'token' => $token,
