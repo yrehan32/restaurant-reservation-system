@@ -27,26 +27,44 @@ class Booking
 
     public function get(int $id = null, string $status = null) : array
     {
-        $bookings = $this->bookingModel;
-        
-        if ($this->bookingType === 'online') {
-            $bookings = $bookings->with('user', 'table');
-        } else {
-            $bookings = $bookings->with('admin', 'table');
-        }
+        $statusCode = 200;
 
-        if ($id) {
-            $bookings->where('id', $id);
-        }
+        try {
+            $bookings = $this->bookingModel;
+            
+            if ($this->bookingType === 'online') {
+                $bookings = $bookings->with('user', 'table');
+            } else {
+                $bookings = $bookings->with('admin', 'table');
+            }
+    
+            if ($id) {
+                $bookings->where('id', $id);
+            }
+    
+            if ($status) {
+                $bookings->where('status', $status);
+            }
+    
+            $bookings = $bookings->get();
+    
+            // If no booking found, throw exception
+            if (!empty($id) && $bookings->isEmpty()) {
+                $statusCode = 404;
+                throw new \Exception('Booking not found.');
+            }
 
-        if ($status) {
-            $bookings->where('status', $status);
+            return [
+                'success' => true,
+                'data' => $bookings->toArray(),
+            ];
+        } catch (\Throwable $th) {
+            return [
+                'success' => false,
+                'message' => $th->getMessage(),
+                'status_code' => $statusCode,
+            ];
         }
-
-        return [
-            'success' => true,
-            'data' => $bookings->get()->toArray(),
-        ];
     }
 
     public function create(array $data) : array
@@ -99,6 +117,8 @@ class Booking
 
     public function update(array $data, int $id) : array
     {
+        $statusCode = 200;
+        
         DB::beginTransaction();
 
         try {
@@ -106,6 +126,7 @@ class Booking
 
             // If number_of_people > table capacity, throw exception
             if ($data['number_of_people'] > $table->capacity) {
+                $statusCode = 422;
                 throw new \Exception('Number of people exceeds table capacity.');
             }
 
@@ -125,16 +146,24 @@ class Booking
             return [
                 'success' => false,
                 'message' => $th->getMessage(),
+                'status_code' => $statusCode,
             ];
         }
     }
 
     public function delete(int $id) : array
     {
+        $statusCode = 200;
+
         DB::beginTransaction();
 
         try {
-            $booking = $this->bookingModel->findOrFail($id);
+            $booking = $this->bookingModel->find($id);
+
+            if (!$booking) {
+                $statusCode = 404;
+                throw new \Exception('Booking not found.');
+            }
 
             $booking->delete();
 
@@ -150,6 +179,7 @@ class Booking
             return [
                 'success' => false,
                 'message' => $th->getMessage(),
+                'status_code' => $statusCode,
             ];
         }
     }

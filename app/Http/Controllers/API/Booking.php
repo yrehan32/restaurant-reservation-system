@@ -29,17 +29,35 @@ class Booking extends Controller
 
     public function getById($id) : JsonResponse
     {
-        $service = new ServicesBooking('online');
+        $isError = false;
+        $message = "";
+        $data = [];
+        $statusCode = 200;
 
-        $booking = $service->get($id);
+        try {
+            $service = new ServicesBooking('online');
+    
+            $booking = $service->get($id);
+
+            if (!$booking['success']) {
+                $statusCode = $booking['status_code'];
+                throw new \Exception($booking['message']);
+            }
+
+            $message = "Booking retrieved successfully.";
+            $data = [
+                'booking' => $booking['data'],
+            ];
+        } catch (\Throwable $th) {
+            $isError = true;
+            $message = $th->getMessage();
+        }
 
         return response()->json([
-            'error' => false,
-            'message' => 'Booking retrieved successfully.',
-            'data' => [
-                'booking' => $booking['data'],
-            ],
-        ]);
+            'error' => $isError,
+            'message' => $message,
+            'data' => $data,
+        ], $statusCode);
     }
 
     public function create(CreateRequest $request) : JsonResponse
@@ -82,6 +100,7 @@ class Booking extends Controller
         $isError = false;
         $message = "";
         $data = [];
+        $statusCode = 200;
         
         try {
             $service = new ServicesBooking('online');
@@ -89,6 +108,7 @@ class Booking extends Controller
             $booking = $service->update($request->validated(), $id);
 
             if (!$booking['success']) {
+                $statusCode = $booking['status_code'];
                 throw new \Exception($booking['message']);
             }
 
@@ -105,7 +125,7 @@ class Booking extends Controller
             'error' => $isError,
             'message' => $message,
             'data' => $data,
-        ]);
+        ], $statusCode);
     }
 
     public function delete($id) : JsonResponse
@@ -113,6 +133,7 @@ class Booking extends Controller
         $isError = false;
         $message = "";
         $data = [];
+        $statusCode = 200;
         
         try {
             $service = new ServicesBooking('online');
@@ -120,6 +141,7 @@ class Booking extends Controller
             $booking = $service->delete($id);
 
             if (!$booking['success']) {
+                $statusCode = $booking['status_code'];
                 throw new \Exception($booking['message']);
             }
 
@@ -134,6 +156,6 @@ class Booking extends Controller
             'error' => $isError,
             'message' => $message,
             'data' => $data,
-        ]);
+        ], $statusCode);
     }
 }
