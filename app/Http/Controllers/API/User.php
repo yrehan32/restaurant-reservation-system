@@ -50,6 +50,46 @@ class User extends Controller
         ]);
     }
 
+    public function createAdmin(CreateRequest $request) : JsonResponse
+    {
+        $data = $request->validated();
+
+        $data['role'] = Constant::ADMIN_ROLE;
+
+        $user = ModelsUser::create($data);
+
+        $scopes = Constant::ADMIN_SCOPE;
+
+        $token = $user->createToken('authToken', $scopes)->accessToken;
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Admin created successfully.',
+            'data' => [
+                'user' => $user,
+                'token' => $token,
+            ],
+        ]);
+    }
+
+    public function createUser(CreateRequest $request) : JsonResponse
+    {
+        $user = ModelsUser::create($request->validated());
+
+        $scopes = Constant::USER_SCOPE;
+
+        $token = $user->createToken('authToken', $scopes)->accessToken;
+
+        return response()->json([
+            'error' => false,
+            'message' => 'User created successfully.',
+            'data' => [
+                'user' => $user,
+                'token' => $token,
+            ],
+        ]);
+    }
+
     public function login(LoginRequest $request) : JsonResponse
     {
         $credentials = $request->validated();

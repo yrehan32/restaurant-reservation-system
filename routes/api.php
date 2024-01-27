@@ -22,6 +22,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::group(['prefix' => 'register'], function () {
+    Route::post('/admin', [User::class, 'createAdmin']);
+    Route::post('/user', [User::class, 'createUser']);
+});
+
 Route::group(['prefix' => 'auth'], function () {
         Route::post('/login', [User::class, 'login']);
     
