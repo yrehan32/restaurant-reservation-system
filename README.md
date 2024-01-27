@@ -76,6 +76,10 @@ Your API is now accessible at http://localhost:8000.
 php artisan test
 
 ```
+
+## Database Mapping
+![Database Mapping.](https://raw.githubusercontent.com/yrehan32/restaurant-reservation-system/main/db-map.png)
+
 ## API Documentation
 
 [Documentation](https://www.postman.com/yr-team/workspace/yr-workspace/collection/14575963-4efcc41a-f836-482d-96af-b24243e71bb1?action=share&creator=14575963)
